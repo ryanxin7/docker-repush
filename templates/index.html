@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Docker 镜像推送工具</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <h1>Docker 镜像推送工具</h1>
+    <div>
+        <input type="text" id="sourceImage" placeholder="输入原始镜像地址">
+        <input type="text" id="privateRepoUrl" value="registry.cn-beijing.aliyuncs.com/xxk8s" placeholder="私有仓库URL">
+        <input type="text" id="projectName" placeholder="项目名称">
+        <input type="text" id="version" placeholder="版本号">
+        <button onclick="pushImage()">一键推送</button>
+        <button onclick="clearLog()">清除日志</button> <!-- 新增的清除日志按钮 -->
+    </div>
+
+    <h2>Docker 执行日志</h2>
+    <pre id="log"></pre>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.0/socket.io.js"></script>
+    <script>
+        var socket = io.connect('http://localhost:5000');  // 连接后端 WebSocket
+
+        function pushImage() {
+            var sourceImage = document.getElementById('sourceImage').value;
+            var privateRepoUrl = document.getElementById('privateRepoUrl').value;
+            var projectName = document.getElementById('projectName').value;
+            var version = document.getElementById('version').value;
+
+            socket.emit('startPush', {
+                sourceImage: sourceImage,
+                privateRepoUrl: privateRepoUrl,
+                projectName: projectName,
+                version: version
+            });
+        }
+
+        function clearLog() {
+            socket.emit('clearLog');  // 触发清除日志的事件
+        }
+
+        // 监听后端的日志消息
+        socket.on('log', function(log) {
+            var logElement = document.getElementById('log');
+            logElement.textContent += log + '\n';
+        });
+
+        // 监听后端清除日志的事件
+        socket.on('logCleared', function() {
+            var logElement = document.getElementById('log');
+            logElement.textContent = '';  // 清空日志显示
+        });
+    </script>
+</body>
+</html>
