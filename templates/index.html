@@ -20,9 +20,11 @@
     <h2>Docker 执行日志</h2>
     <pre id="log"></pre>
 
+    <!-- 动态使用当前主机地址连接 WebSocket -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.0/socket.io.js"></script>
     <script>
-        var socket = io.connect('http://localhost:5000');  // 连接后端 WebSocket
+        // 动态获取当前主机的地址
+        var socket = io.connect('http://' + window.location.host);  // 动态连接到后端 WebSocket
 
         function pushImage() {
             var sourceImage = document.getElementById('sourceImage').value;
